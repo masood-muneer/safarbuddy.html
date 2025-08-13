@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SafarBuddy – All-in-One Trips</title>
+<style>
+  :root{
+    --bg:#0b132b; --panel:#1c2541; --muted:#3a506b; --accent:#5bc0be; --accent2:#a5ffd6; --text:#eaf2f8;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:linear-gradient(135deg,var(--bg),#111827);color:var(--text)}
+  header{padding:28px 16px;text-align:center;background:radial-gradient(1200px 400px at 50% -200px, #1f2937 0%, transparent 60%)}
+  h1{margin:.2rem 0 0;font-size:clamp(28px,4vw,40px)}
+  .tagline{opacity:.85;margin:.4rem 0 1.2rem}
+  .app{max-width:1200px;margin:0 auto;padding:16px}
+  .topbar{display:grid;grid-template-columns:1fr 320px;gap:16px;align-items:end;flex-wrap:wrap}
+  .card{background:linear-gradient(180deg,var(--panel),#172033);border:1px solid rgba(255,255,255,.06);border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+  .pad{padding:16px}
+  label{font-size:14px;opacity:.9}
+  input[type="text"]{width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#0f172a;color:var(--text)}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .tab{padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:#0f172a;cursor:pointer;font-weight:600;opacity:.9}
+  .tab.active{background:var(--accent);color:#062925;border-color:transparent}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+  .trip{display:flex;flex-direction:column;overflow:hidden}
+  .thumb{height:140px;background:#0f172a;position:relative}
+  .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .trip .pad{display:flex;flex-direction:column;gap:8px}
+  .title{font-weight:700}
+  .meta{font-size:14px;opacity:.9;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .chip{padding:6px 10px;border-radius:999px;background:#0f172a;border:1px solid rgba(255,255,255,.1);text-align:center}
+  .actions{display:flex;gap:8px;margin-top:6px}
+  button{appearance:none;border:0;border-radius:10px;padding:10px 12px;font-weight:700;cursor:pointer}
+  .btn{background:var(--accent);color:#062925}
+  .btn.secondary{background:#0f172a;color:var(--text);border:1px solid rgba(255,255,255,.12)}
+  .split{display:grid;grid-template-columns:1.4fr .9fr;gap:16px;margin-top:16px}
+  @media (max-width:900px){.topbar{grid-template-columns:1fr}.split{grid-template-columns:1fr}}
+  .section-title{font-weight:800;margin:0 0 10px 0;font-size:20px}
+  .tickets{display:flex;flex-direction:column;gap:10px}
+  .ticket{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:12px;border-radius:12px;background:#0f172a;border:1px solid rgba(255,255,255,.08)}
+  .total{margin-top:8px;font-weight:800}
+  footer{margin:28px auto;max-width:1200px;padding:16px}
+  .profile{display:grid;grid-template-columns:120px 1fr 260px;gap:16px;align-items:center}
+  .avatar{width:120px;height:120px;border-radius:16px;background:#0f172a;border:1px solid rgba(255,255,255,.12);overflow:hidden}
+  .avatar img{width:100%;height:100%;object-fit:cover}
+  .links{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+  .link{padding:8px 12px;border-radius:10px;background:#0f172a;border:1px solid rgba(255,255,255,.12);text-decoration:none;color:var(--text);font-weight:700}
+  .qr{justify-self:end;background:#0f172a;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px;width:260px}
+  .qr img{width:100%;height:auto;display:block;border-radius:8px}
+  .muted{opacity:.8}
+</style>
+</head>
+<body>
+  <header>
+    <h1>🌍 SafarBuddy — Pakistan Trip Planner</h1>
+    <div class="tagline">Discover the beauty, culture & heritage of Pakistan. Book trips right from your browser.</div>
+    <div class="app">
+      <div class="topbar">
+        <div class="card pad">
+          <label for="username">Your Username (used to save bookings on this device)</label>
+          <input id="username" type="text" placeholder="e.g., talha_muneer" />
+          <div class="tabs" id="tabs">
+            <div class="tab active" data-cat="Natural">🌄 Natural</div>
+            <div class="tab" data-cat="Historical">🏛️ Historical</div>
+            <div class="tab" data-cat="City">🏙️ City</div>
+            <div class="tab" data-cat="Heritage">🕌 Heritage</div>
+            <div class="tab" data-cat="All">✨ All</div>
+          </div>
+        </div>
+        <div class="card pad">
+          <div class="section-title">My Booked Trips</div>
+          <div id="bookedList" class="tickets"></div>
+          <div id="totalCost" class="total"></div>
+          <div class="actions">
+            <button class="btn secondary" id="refreshBtn">Refresh</button>
+            <button class="btn" id="clearBtn">Delete All My Trips</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="split">
+        <div class="card pad">
+          <div class="section-title">Browse & Book</div>
+          <div id="tripGrid" class="grid"></div>
+        </div>
+        <div class="card pad">
+          <div class="section-title">About You</div>
+          <div class="muted">Cybersecurity System Administrator & Web Developer. Building interactive, fast, & secure web experiences.</div>
+          <div class="links">
+            <!-- Replace these with your real links -->
+            <a class="link" href="mailto:talhamuneer258@gmail.com">📧 Email</a>
+            <a class="link" href="https://www.linkedin.com/in/talhamuneer" target="_blank" rel="noopener">🔗 LinkedIn</a>
+            <a class="link" href="https://github.com/talhamuner" target="_blank" rel="noopener">💻 GitHub</a>
+            <a class="link" href="https://wa.me/923206805269" target="_blank" rel="noopener">💬 WhatsApp</a>
+          </div>
+
+          <div style="height:10px"></div>
+          <div class="section-title">WhatsApp QR</div>
+          <div class="qr">
+            <!-- 🔁 Replace src with your hosted QR image URL -->
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=https%3A%2F%2Fwa.me%2F923206805269" alt="WhatsApp QR" />
+          </div>
+          <div class="muted" style="margin-top:8px">Scan to chat on WhatsApp.</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <footer>
+    <div class="card pad">
+      <div class="profile">
+        <div class="avatar">
+          <!-- Optional profile photo -->
+          <img src="https://images.unsplash.com/photo-1502685104226-ee32379fefbe?q=80&w=640&auto=format&fit=crop" alt="Profile" />
+        </div>
+        <div>
+          <div class="section-title">Talha Muneer</div>
+          <div class="muted">Cybersecurity System Administrator • Web Developer • Pakistan</div>
+          <div class="links" style="margin-top:10px">
+            <a class="link" href="mailto:masoodmuneer0@gmail.com">📧 Email</a>
+            <a class="link" href="https://github.com/masoodmuneer0" target="_blank" rel="noopener">🔗 LinkedIn</a>
+            <a class="link" href="https://www.linkedin.com/in/masoodmuneer/" target="_blank" rel="noopener">💻 GitHub</a>
+            <a class="link" href="https://wa.me/923097703013" target="_blank" rel="noopener">💬 WhatsApp</a>
+          </div>
+        </div>
+        <div class="qr">
+          <!-- Same QR here for convenience -->
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=https%3A%2F%2Fwa.me%2F923206805269" alt="WhatsApp QR" />
+        </div>
+      </div>
+    </div>
+  </footer>
+
+<script>
+/* ========= Data (merged from your C++ lists) ========= */
+const trips = [
+  /* Natural (10) */
+  {cat:"Natural", name:"Naran", distance:280, time:6.0, cost:6000, img:"https://images.unsplash.com/photo-1605649487212-cb2f5e76ccba?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Natural", name:"Skardu", distance:640, time:14.0, cost:15000, img:"https://images.unsplash.com/photo-1613478223719-2d9b0aee4bb0?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Natural", name:"Hunza", distance:600, time:12.0, cost:13000, img:"https://images.unsplash.com/photo-1605649487268-97b725d902d4?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Natural", name:"Fairy Meadows", distance:540, time:11.0, cost:12000, img:"https://images.unsplash.com/photo-1624901831420-9c2a0212ad20?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Natural", name:"Neelum Valley", distance:240, time:7.0, cost:7000, img:"https://images.unsplash.com/photo-1580191947412-9b6b0aee811a?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Natural", name:"Kalash Valley", distance:410, time:9.0, cost:9000, img:"https://images.unsplash.com/photo-1563870384082-9b65205f1b36?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Natural", name:"Rama Meadows", distance:480, time:10.0, cost:11000, img:"https://images.unsplash.com/photo-1593642532400-2682810df593?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Natural", name:"Ganga Choti", distance:180, time:5.5, cost:5000, img:"https://images.unsplash.com/photo-1521207418485-99c705420785?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Natural", name:"Leepa Valley", distance:260, time:6.5, cost:7500, img:"https://images.unsplash.com/photo-1549880338-65ddcdfd017b?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Natural", name:"Shogran", distance:240, time:6.0, cost:6000, img:"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop"},
+
+  /* Historical (15) */
+  {cat:"Historical", name:"Mazar-e-Quaid (Karachi)", distance:1400, time:17.0, cost:15000, img:"https://images.unsplash.com/photo-1612085316174-2a9edb5183c9?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Historical", name:"Badshahi Mosque (Lahore)", distance:380, time:4.5, cost:5000, img:"https://images.unsplash.com/photo-1615754695454-8dfc8f9f81f3?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Historical", name:"Minar-e-Pakistan (Lahore)", distance:380, time:4.5, cost:5000, img:"https://images.unsplash.com/photo-1621091215551-2e83515a69f4?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Historical", name:"Faisal Mosque (Islamabad)", distance:0, time:0.1, cost:1000, img:"https://images.unsplash.com/photo-1592326508208-8a7b8e1ffb62?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Historical", name:"Lahore Fort (Lahore)", distance:380, time:4.5, cost:5000, img:"https://images.unsplash.com/photo-1601288496920-3a4d2f1fc8f5?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Historical", name:"Shalimar Gardens (Lahore)", distance:385, time:4.6, cost:5000, img:"https://images.unsplash.com/photo-1601288544179-7f0b0f5f4a33?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Historical", name:"Pakistan Monument (Islamabad)", distance:5, time:0.2, cost:1000, img:"https://images.unsplash.com/photo-1606223030713-9b0f2fbd1e5e?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Historical", name:"Mohenjo-Daro (Sindh)", distance:1150, time:15.0, cost:13000, img:"https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Historical", name:"Rohtas Fort (Jhelum)", distance:130, time:2.0, cost:3000, img:"https://images.unsplash.com/photo-1586348943529-beaae6c28db9?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Historical", name:"Noor Mahal (Bahawalpur)", distance:680, time:8.0, cost:10000, img:"https://images.unsplash.com/photo-1599946974302-a3c6a0eef894?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Historical", name:"Tomb of Allama Iqbal (Lahore)", distance:380, time:4.5, cost:5000, img:"https://images.unsplash.com/photo-1542317853-ff9cf51b0b09?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Historical", name:"Tomb of Jahangir (Lahore)", distance:385, time:4.6, cost:5000, img:"https://images.unsplash.com/photo-1601288472459-6d8a6e2f1c4d?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Historical", name:"Derawar Fort (Cholistan Desert)", distance:730, time:9.0, cost:11000, img:"https://images.unsplash.com/photo-1558980664-10a2f1e2d6a3?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Historical", name:"Baltit Fort (Hunza)", distance:600, time:12.0, cost:15000, img:"https://images.unsplash.com/photo-1628071087687-5f61f7eecca3?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Historical", name:"Minaret of Chaukhandi Tombs (Karachi)", distance:1420, time:17.5, cost:15000, img:"https://images.unsplash.com/photo-1578926374377-4d1c1ff717a8?q=80&w=1200&auto=format&fit=crop"},
+
+  /* City (10) */
+  {cat:"City", name:"Lahore", distance:380, time:4.5, cost:5000, img:"https://images.unsplash.com/photo-1601288446069-0b1c1b1c3a8a?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"City", name:"Multan", distance:550, time:6.0, cost:6500, img:"https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"City", name:"Islamabad", distance:0, time:0.0, cost:0, img:"https://images.unsplash.com/photo-1541781286675-8d2cb22b2b5b?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"City", name:"Peshawar", distance:180, time:2.5, cost:3000, img:"https://images.unsplash.com/photo-1565895405138-6f6a2f03f06c?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"City", name:"Karachi", distance:1400, time:18.0, cost:18000, img:"https://images.unsplash.com/photo-1542435503-956c469947f6?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"City", name:"Quetta", distance:950, time:12.0, cost:13000, img:"https://images.unsplash.com/photo-1512453979798-5ea266f8880c?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"City", name:"Hyderabad", distance:1250, time:16.0, cost:15000, img:"https://images.unsplash.com/photo-1512453979800-5ea266f8880c?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"City", name:"Faisalabad", distance:320, time:4.0, cost:4500, img:"https://images.unsplash.com/photo-1529070538774-1843cb3265df?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"City", name:"Sialkot", distance:250, time:3.5, cost:4000, img:"https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"City", name:"Gujranwala", distance:220, time:3.0, cost:3500, img:"https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1200&auto=format&fit=crop"},
+
+  /* Heritage (11) */
+  {cat:"Heritage", name:"Faisal Mosque (Islamabad)", distance:0, time:0.0, cost:500, img:"https://images.unsplash.com/photo-1592326508208-8a7b8e1ffb62?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Heritage", name:"Badshahi Mosque (Lahore)", distance:380, time:4.5, cost:5500, img:"https://images.unsplash.com/photo-1615754695454-8dfc8f9f81f3?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Heritage", name:"Data Darbar (Lahore)", distance:380, time:4.5, cost:5500, img:"https://images.unsplash.com/photo-1562599939-04ea0d90fe1b?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Heritage", name:"Shah Jahan Mosque (Thatta)", distance:1120, time:14.0, cost:14000, img:"https://images.unsplash.com/photo-1601288450378-7d8f1a0f06bb?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Heritage", name:"Tomb of Allama Iqbal (Lahore)", distance:380, time:4.5, cost:5000, img:"https://images.unsplash.com/photo-1542317853-ff9cf51b0b09?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Heritage", name:"Noor Mahal (Bahawalpur)", distance:720, time:9.5, cost:9000, img:"https://images.unsplash.com/photo-1599946974302-a3c6a0eef894?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Heritage", name:"Mazar-e-Quaid (Karachi)", distance:1400, time:18.0, cost:18000, img:"https://images.unsplash.com/photo-1612085316174-2a9edb5183c9?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Heritage", name:"Mohenjo-Daro (Sindh)", distance:1100, time:13.0, cost:13500, img:"https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Heritage", name:"Rohtas Fort (Jhelum)", distance:130, time:2.0, cost:3000, img:"https://images.unsplash.com/photo-1586348943529-beaae6c28db9?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Heritage", name:"Tomb of Jahangir (Lahore)", distance:380, time:4.5, cost:5500, img:"https://images.unsplash.com/photo-1601288472459-6d8a6e2f1c4d?q=80&w=1200&auto=format&fit=crop"},
+  {cat:"Heritage", name:"Shah Rukn Alam Shrine (Multan)", distance:550, time:6.0, cost:6500, img:"https://images.unsplash.com/photo-1558980664-10a2f1e2d6a3?q=80&w=1200&auto=format&fit=crop"}
+];
+
+/* ========= Helpers ========= */
+const $ = sel => document.querySelector(sel);
+const $$ = sel => document.querySelectorAll(sel);
+
+function keyFor(username){
+  return `safarbuddy:${username.toLowerCase().trim()}`;
+}
+
+function getUser(){
+  return $("#username").value.trim();
+}
+
+function readBookings(username){
+  const raw = localStorage.getItem(keyFor(username));
+  try { return raw ? JSON.parse(raw) : []; } catch(e){ return []; }
+}
+
+function writeBookings(username, arr){
+  localStorage.setItem(keyFor(username), JSON.stringify(arr));
+}
+
+/* ========= UI Rendering ========= */
+function tripCard(t, index){
+  return `
+    <div class="trip card">
+      <div class="thumb">
+        <img src="${t.img}" alt="${t.name}" loading="lazy" />
+      </div>
+      <div class="pad">
+        <div class="title">${t.name}</div>
+        <div class="meta">
+          <div class="chip">${t.distance} km</div>
+          <div class="chip">${t.time} hrs</div>
+          <div class="chip">${t.cost.toLocaleString()} PKR/day</div>
+        </div>
+        <div class="actions">
+          <button class="btn" onclick="book(${index})">Book</button>
+          <button class="btn secondary" onclick="details(${index})">Details</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderTrips(category="Natural"){
+  const grid = $("#tripGrid");
+  const list = category==="All" ? trips : trips.filter(t=>t.cat===category);
+  grid.innerHTML = list.map(t => tripCard(t, trips.indexOf(t))).join("");
+}
+
+function renderBookings(){
+  const username = getUser();
+  const listEl = $("#bookedList");
+  const totalEl = $("#totalCost");
+  if(!username){ listEl.innerHTML = `<div class="muted">Enter username to view bookings.</div>`; totalEl.textContent=""; return;}
+  const bookings = readBookings(username);
+  if(!bookings.length){ listEl.innerHTML = `<div class="muted">No trips booked yet.</div>`; totalEl.textContent=""; return;}
+
+  let total = 0;
+  listEl.innerHTML = bookings.map((b,i)=>{
+    total += b.cost;
+    return `
+      <div class="ticket">
+        <div>
+          <strong>${b.name}</strong>
+          <div class="muted" style="font-size:13px">${b.cat} • ${b.distance} km • ${b.time} hrs • ${b.cost.toLocaleString()} PKR/day</div>
+        </div>
+        <button class="btn secondary" onclick="removeBooking(${i})">Remove</button>
+      </div>`;
+  }).join("");
+  totalEl.textContent = `Total (per day): ${total.toLocaleString()} PKR`;
+}
+
+/* ========= Actions ========= */
+function book(index){
+  const username = getUser();
+  if(!username){ alert("Please enter a username first."); return; }
+  const b = readBookings(username);
+  b.push(trips[index]);
+  writeBookings(username, b);
+  alert("Trip booked successfully!");
+  renderBookings();
+}
+
+function details(index){
+  const t = trips[index];
+  alert(`${t.name}\nCategory: ${t.cat}\nDistance: ${t.distance} km\nTime: ${t.time} hours\nCost: ${t.cost.toLocaleString()} PKR per day\n\nFrom: Islamabad`);
+}
+
+function removeBooking(i){
+  const username = getUser();
+  const b = readBookings(username);
+  b.splice(i,1);
+  writeBookings(username,b);
+  renderBookings();
+}
+
+function clearAll(){
+  const username = getUser();
+  if(!username){ alert("Enter username first."); return; }
+  if(confirm(`Delete all trips for ${username}?`)){
+    localStorage.removeItem(keyFor(username));
+    renderBookings();
+  }
+}
+
+/* ========= Wiring ========= */
+$("#username").addEventListener("input", renderBookings);
+$("#clearBtn").addEventListener("click", clearAll);
+$("#refreshBtn").addEventListener("click", renderBookings);
+
+$$(".tab").forEach(tab=>{
+  tab.addEventListener("click", ()=>{
+    $$(".tab").forEach(t=>t.classList.remove("active"));
+    tab.classList.add("active");
+    renderTrips(tab.dataset.cat);
+  });
+});
+
+/* Initial render */
+renderTrips("Natural");
+renderBookings();
+</script>
+</body>
+</html>
