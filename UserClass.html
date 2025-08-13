@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SafarBuddy - Trip Planner</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #eef2f3;
+        padding: 20px;
+        text-align: center;
+    }
+    h1 {
+        color: #2d6a4f;
+    }
+    .menu {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        max-width: 500px;
+        margin: auto;
+        box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+    }
+    button {
+        display: block;
+        width: 100%;
+        margin: 10px 0;
+        padding: 10px;
+        background: #2d6a4f;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+    button:hover {
+        background: #1b4332;
+    }
+    .section-title {
+        font-weight: bold;
+        margin-top: 20px;
+        color: #444;
+    }
+</style>
+</head>
+<body>
+
+<h1>🌍 Welcome to SafarBuddy 🌍</h1>
+<p>Discover the beauty, culture, and heritage of Pakistan like never before!</p>
+
+<div class="menu">
+    <p class="section-title">Select your preferred type of adventure:</p>
+    <button onclick="selectTrip(1)">Natural Beauty Trip 🌲⛰️🏞️</button>
+    <button onclick="selectTrip(2)">Historical Trip 🏰📜</button>
+    <button onclick="selectTrip(3)">Adventure Trip 🧗🚵</button>
+    <button onclick="selectTrip(4)">City Tour 🏙️🚖</button>
+    <button onclick="selectTrip(5)">Religious Trip 🕌🙏</button>
+    <button onclick="exitApp()">Exit ❌</button>
+</div>
+
+<div id="tripDetails" style="margin-top:20px;"></div>
+
+<script>
+function selectTrip(option) {
+    let details = "";
+    switch(option) {
+        case 1:
+            details = `<h2>🌄 Natural Beauty Trip Planner</h2>
+                       <p>Plan your perfect scenic trip to Pakistan's natural wonders.</p>`;
+            break;
+        case 2:
+            details = `<h2>🏛️ Historical & Heritage Explorer</h2>
+                       <p>Discover Pakistan's rich cultural history and monuments.</p>`;
+            break;
+        case 3:
+            details = `<h2>🏞️ Adventure & Nature Explorer</h2>
+                       <p>Thrilling destinations for adventure lovers!</p>`;
+            break;
+        case 4:
+            details = `<h2>🏙️ Explore the Cities</h2>
+                       <p>Experience the vibrant city life of Pakistan.</p>`;
+            break;
+        case 5:
+            details = `<h2>🕌 Religious & Heritage Sites</h2>
+                       <p>Visit the most sacred and historic sites.</p>`;
+            break;
+        default:
+            details = `<p>Invalid option.</p>`;
+    }
+    document.getElementById("tripDetails").innerHTML = details;
+}
+
+function exitApp() {
+    document.getElementById("tripDetails").innerHTML = "<h2>Thank you for using SafarBuddy! Have a great day! 🌟</h2>";
+}
+</script>
+
+</body>
+</html>

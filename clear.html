@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clear Screen Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        #output {
+            border: 1px solid #ccc;
+            padding: 15px;
+            min-height: 100px;
+            background-color: #f9f9f9;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px 15px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Clear Screen Example</h2>
+
+<div id="output">
+    This is some content that will be cleared when you click the button.
+</div>
+
+<button onclick="clearScreen()">Clear Screen</button>
+
+<script>
+function clearScreen() {
+    document.getElementById("output").innerHTML = ""; // Clears the content
+}
+</script>
+
+</body>
+</html>

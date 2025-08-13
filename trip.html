@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Historical Trip Booking</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f5f5f5;
+        padding: 20px;
+    }
+    h1 {
+        text-align: center;
+        color: #333;
+    }
+    .container {
+        max-width: 600px;
+        margin: auto;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    button {
+        margin: 5px 0;
+        padding: 10px;
+        width: 100%;
+        background: #007bff;
+        border: none;
+        color: white;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    button:hover {
+        background: #0056b3;
+    }
+    .trip {
+        border-bottom: 1px solid #ccc;
+        padding: 10px 0;
+    }
+</style>
+</head>
+<body>
+
+<h1>Historical & Heritage Trip Booking</h1>
+<div class="container">
+    <label>Enter Username:</label>
+    <input type="text" id="username" placeholder="Your name">
+    <hr>
+    <h3>Available Trips</h3>
+    <div id="tripList"></div>
+    <hr>
+    <button onclick="viewTrips()">View My Booked Trips</button>
+    <button onclick="deleteTrips()">Delete My Trips</button>
+</div>
+
+<script>
+const trips = [
+    {name: "Mazar-e-Quaid (Karachi)", distance: 1400, time: 17.0, cost: 15000},
+    {name: "Badshahi Mosque (Lahore)", distance: 380, time: 4.5, cost: 5000},
+    {name: "Minar-e-Pakistan (Lahore)", distance: 380, time: 4.5, cost: 5000},
+    {name: "Faisal Mosque (Islamabad)", distance: 0, time: 0.1, cost: 1000},
+    {name: "Lahore Fort (Lahore)", distance: 380, time: 4.5, cost: 5000},
+    {name: "Shalimar Gardens (Lahore)", distance: 385, time: 4.6, cost: 5000},
+    {name: "Pakistan Monument (Islamabad)", distance: 5, time: 0.2, cost: 1000},
+    {name: "Mohenjo-Daro (Sindh)", distance: 1150, time: 15.0, cost: 13000},
+    {name: "Rohtas Fort (Jhelum)", distance: 130, time: 2.0, cost: 3000},
+    {name: "Noor Mahal (Bahawalpur)", distance: 680, time: 8.0, cost: 10000},
+    {name: "Tomb of Allama Iqbal (Lahore)", distance: 380, time: 4.5, cost: 5000},
+    {name: "Tomb of Jahangir (Lahore)", distance: 385, time: 4.6, cost: 5000},
+    {name: "Derawar Fort (Cholistan Desert)", distance: 730, time: 9.0, cost: 11000},
+    {name: "Baltit Fort (Hunza)", distance: 600, time: 12.0, cost: 15000},
+    {name: "Minaret of Chaukhandi Tombs (Karachi)", distance: 1420, time: 17.5, cost: 15000}
+];
+
+function renderTrips() {
+    const tripList = document.getElementById('tripList');
+    tripList.innerHTML = '';
+    trips.forEach((trip, index) => {
+        tripList.innerHTML += `
+            <div class="trip">
+                <strong>${trip.name}</strong><br>
+                Distance: ${trip.distance} km<br>
+                Time: ${trip.time} hours<br>
+                Cost: ${trip.cost} PKR<br>
+                <button onclick="bookTrip(${index})">Book This Trip</button>
+            </div>
+        `;
+    });
+}
+
+function bookTrip(index) {
+    const username = document.getElementById('username').value.trim();
+    if (!username) {
+        alert("Please enter your username first.");
+        return;
+    }
+    let booked = JSON.parse(localStorage.getItem(username)) || [];
+    booked.push(trips[index]);
+    localStorage.setItem(username, JSON.stringify(booked));
+    alert("Trip booked successfully!");
+}
+
+function viewTrips() {
+    const username = document.getElementById('username').value.trim();
+    if (!username) {
+        alert("Please enter your username first.");
+        return;
+    }
+    let booked = JSON.parse(localStorage.getItem(username)) || [];
+    if (booked.length === 0) {
+        alert("No trips booked yet.");
+        return;
+    }
+    let msg = `Booked Trips for ${username}:\n`;
+    booked.forEach(t => {
+        msg += `${t.name} - ${t.distance} km - ${t.time} hours - ${t.cost} PKR\n`;
+    });
+    alert(msg);
+}
+
+function deleteTrips() {
+    const username = document.getElementById('username').value.trim();
+    if (!username) {
+        alert("Please enter your username first.");
+        return;
+    }
+    localStorage.removeItem(username);
+    alert("All trips deleted for " + username);
+}
+
+renderTrips();
+</script>
+
+</body>
+</html>

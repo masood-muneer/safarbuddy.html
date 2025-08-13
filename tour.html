@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>City Trip Booking</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f7f7f7;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        .trip-card {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        button {
+            padding: 8px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background: #4CAF50;
+            color: white;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .danger {
+            background: #d9534f;
+        }
+        .danger:hover {
+            background: #c9302c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>City Trip Booking</h1>
+
+        <div id="login-section">
+            <h2>Enter Your Username</h2>
+            <input type="text" id="username" placeholder="Username">
+            <button onclick="startBooking()">Start Booking</button>
+        </div>
+
+        <div id="trip-section" style="display:none;">
+            <h2>Select a Trip</h2>
+            <div id="trip-list"></div>
+            <button onclick="viewMyTrips()">View My Booked Trips</button>
+            <button class="danger" onclick="deleteMyTrips()">Delete My Trips</button>
+        </div>
+
+        <div id="booked-section" style="display:none;">
+            <h2>My Booked Trips</h2>
+            <div id="booked-list"></div>
+            <button onclick="closeBooked()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        const trips = [
+            { name: "Lahore", distance: 380, time: 4.5, cost: 5000 },
+            { name: "Multan", distance: 550, time: 6.0, cost: 6500 },
+            { name: "Islamabad", distance: 0, time: 0.0, cost: 0 },
+            { name: "Peshawar", distance: 180, time: 2.5, cost: 3000 },
+            { name: "Karachi", distance: 1400, time: 18.0, cost: 18000 },
+            { name: "Quetta", distance: 950, time: 12.0, cost: 13000 },
+            { name: "Hyderabad", distance: 1250, time: 16.0, cost: 15000 },
+            { name: "Faisalabad", distance: 320, time: 4.0, cost: 4500 },
+            { name: "Sialkot", distance: 250, time: 3.5, cost: 4000 },
+            { name: "Gujranwala", distance: 220, time: 3.0, cost: 3500 }
+        ];
+
+        let currentUser = "";
+
+        function startBooking() {
+            const username = document.getElementById("username").value.trim();
+            if (!username) {
+                alert("Please enter your username!");
+                return;
+            }
+            currentUser = username;
+            document.getElementById("login-section").style.display = "none";
+            document.getElementById("trip-section").style.display = "block";
+            renderTrips();
+        }
+
+        function renderTrips() {
+            const list = document.getElementById("trip-list");
+            list.innerHTML = "";
+            trips.forEach((trip, index) => {
+                const div = document.createElement("div");
+                div.className = "trip-card";
+                div.innerHTML = `
+                    <h3>${trip.name}</h3>
+                    <p>From Islamabad</p>
+                    <p>Distance: ${trip.distance} km</p>
+                    <p>Time: ${trip.time} hours</p>
+                    <p>Cost per person per day: ${trip.cost} PKR</p>
+                    <button onclick="bookTrip(${index})">Book Trip</button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function bookTrip(index) {
+            const trip = trips[index];
+            let bookings = JSON.parse(localStorage.getItem("bookings") || "[]");
+            bookings.push({ user: currentUser, ...trip });
+            localStorage.setItem("bookings", JSON.stringify(bookings));
+            alert("Trip booked successfully!");
+        }
+
+        function viewMyTrips() {
+            const bookings = JSON.parse(localStorage.getItem("bookings") || "[]");
+            const myTrips = bookings.filter(b => b.user === currentUser);
+            const list = document.getElementById("booked-list");
+            list.innerHTML = "";
+
+            if (myTrips.length === 0) {
+                list.innerHTML = "<p>No trips booked yet.</p>";
+            } else {
+                myTrips.forEach(trip => {
+                    const div = document.createElement("div");
+                    div.className = "trip-card";
+                    div.innerHTML = `
+                        <h3>${trip.name}</h3>
+                        <p>Distance: ${trip.distance} km</p>
+                        <p>Time: ${trip.time} hours</p>
+                        <p>Cost: ${trip.cost} PKR</p>
+                    `;
+                    list.appendChild(div);
+                });
+            }
+
+            document.getElementById("booked-section").style.display = "block";
+        }
+
+        function deleteMyTrips() {
+            let bookings = JSON.parse(localStorage.getItem("bookings") || "[]");
+            bookings = bookings.filter(b => b.user !== currentUser);
+            localStorage.setItem("bookings", JSON.stringify(bookings));
+            alert("All trips deleted for " + currentUser);
+        }
+
+        function closeBooked() {
+            document.getElementById("booked-section").style.display = "none";
+        }
+    </script>
+</body>
+</html>

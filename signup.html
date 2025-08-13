@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trip Booking System</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #eef2f3;
+        padding: 20px;
+    }
+    .container {
+        max-width: 500px;
+        margin: auto;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+        text-align: center;
+        color: #2d6a4f;
+    }
+    input, button {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+    button {
+        background: #2d6a4f;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+    button:hover {
+        background: #1b4332;
+    }
+    .hidden {
+        display: none;
+    }
+</style>
+</head>
+<body>
+
+<div id="signup-section" class="container">
+    <h2>Sign Up</h2>
+    <input type="text" id="signup-username" placeholder="Enter username">
+    <input type="password" id="signup-password" placeholder="Enter password">
+    <button onclick="signup()">Sign Up</button>
+    <p>Already have an account? <a href="#" onclick="showLogin()">Login</a></p>
+</div>
+
+<div id="login-section" class="container hidden">
+    <h2>Login</h2>
+    <input type="text" id="login-username" placeholder="Enter username">
+    <input type="password" id="login-password" placeholder="Enter password">
+    <button onclick="login()">Login</button>
+    <p>Don't have an account? <a href="#" onclick="showSignup()">Sign Up</a></p>
+</div>
+
+<div id="menu-section" class="container hidden">
+    <h2>Trip Menu</h2>
+    <button onclick="showTrips()">View Available Trips</button>
+    <button onclick="viewBookings()">View My Bookings</button>
+    <button onclick="logout()">Logout</button>
+</div>
+
+<div id="trips-section" class="container hidden">
+    <h2>Available Trips</h2>
+    <div id="trip-list"></div>
+    <button onclick="backToMenu()">Back</button>
+</div>
+
+<div id="bookings-section" class="container hidden">
+    <h2>My Bookings</h2>
+    <div id="booking-list"></div>
+    <button onclick="clearBookings()">Clear All</button>
+    <button onclick="backToMenu()">Back</button>
+</div>
+
+<script>
+    let trips = [
+        { name: "Naran", distance: 280, time: 6, cost: 6000 },
+        { name: "Skardu", distance: 640, time: 14, cost: 15000 },
+        { name: "Hunza", distance: 600, time: 12, cost: 13000 }
+    ];
+
+    function signup() {
+        let username = document.getElementById("signup-username").value.trim();
+        let password = document.getElementById("signup-password").value.trim();
+        if (username && password) {
+            localStorage.setItem(username, JSON.stringify({ password, bookings: [] }));
+            alert("Signup successful!");
+            showLogin();
+        } else {
+            alert("Please fill all fields.");
+        }
+    }
+
+    function login() {
+        let username = document.getElementById("login-username").value.trim();
+        let password = document.getElementById("login-password").value.trim();
+        let user = JSON.parse(localStorage.getItem(username));
+        if (user && user.password === password) {
+            localStorage.setItem("currentUser", username);
+            alert("Login successful!");
+            document.getElementById("login-section").classList.add("hidden");
+            document.getElementById("menu-section").classList.remove("hidden");
+        } else {
+            alert("Invalid username or password.");
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem("currentUser");
+        showLogin();
+    }
+
+    function showLogin() {
+        document.getElementById("signup-section").classList.add("hidden");
+        document.getElementById("login-section").classList.remove("hidden");
+        document.getElementById("menu-section").classList.add("hidden");
+    }
+
+    function showSignup() {
+        document.getElementById("login-section").classList.add("hidden");
+        document.getElementById("signup-section").classList.remove("hidden");
+    }
+
+    function showTrips() {
+        let tripHTML = "";
+        trips.forEach((trip, i) => {
+            tripHTML += `<div>
+                <b>${trip.name}</b> - ${trip.distance} km - ${trip.time} hrs - ${trip.cost} PKR
+                <button onclick="bookTrip(${i})">Book</button>
+            </div>`;
+        });
+        document.getElementById("trip-list").innerHTML = tripHTML;
+        document.getElementById("menu-section").classList.add("hidden");
+        document.getElementById("trips-section").classList.remove("hidden");
+    }
+
+    function bookTrip(index) {
+        let currentUser = localStorage.getItem("currentUser");
+        let user = JSON.parse(localStorage.getItem(currentUser));
+        user.bookings.push(trips[index]);
+        localStorage.setItem(currentUser, JSON.stringify(user));
+        alert("Trip booked!");
+    }
+
+    function viewBookings() {
+        let currentUser = localStorage.getItem("currentUser");
+        let user = JSON.parse(localStorage.getItem(currentUser));
+        let bookingHTML = user.bookings.length ? "" : "No bookings yet.";
+        user.bookings.forEach(trip => {
+            bookingHTML += `<div><b>${trip.name}</b> - ${trip.cost} PKR</div>`;
+        });
+        document.getElementById("booking-list").innerHTML = bookingHTML;
+        document.getElementById("menu-section").classList.add("hidden");
+        document.getElementById("bookings-section").classList.remove("hidden");
+    }
+
+    function clearBookings() {
+        let currentUser = localStorage.getItem("currentUser");
+        let user = JSON.parse(localStorage.getItem(currentUser));
+        user.bookings = [];
+        localStorage.setItem(currentUser, JSON.stringify(user));
+        viewBookings();
+        alert("All bookings cleared.");
+    }
+
+    function backToMenu() {
+        document.getElementById("trips-section").classList.add("hidden");
+        document.getElementById("bookings-section").classList.add("hidden");
+        document.getElementById("menu-section").classList.remove("hidden");
+    }
+</script>
+
+</body>
+</html>

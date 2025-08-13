@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heritage Trip Booking</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f5f5f5;
+        padding: 20px;
+    }
+    h1 {
+        color: #2c3e50;
+        text-align: center;
+    }
+    .trip {
+        background: white;
+        padding: 15px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    button {
+        padding: 8px 15px;
+        background: #3498db;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    button:hover {
+        background: #2980b9;
+    }
+    #bookedTrips {
+        margin-top: 20px;
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+    }
+</style>
+</head>
+<body>
+
+<h1>Heritage Trip Booking</h1>
+
+<label>Enter your username: </label>
+<input type="text" id="username" placeholder="Your name">
+<button onclick="saveUsername()">Start</button>
+
+<div id="tripList"></div>
+
+<div id="bookedTrips">
+    <h2>My Booked Trips</h2>
+    <ul id="myTrips"></ul>
+    <button onclick="clearTrips()">Delete My Trips</button>
+</div>
+
+<script>
+const trips = [
+    { name: "Faisal Mosque (Islamabad)", distance: 0, time: 0, cost: 500 },
+    { name: "Badshahi Mosque (Lahore)", distance: 380, time: 4.5, cost: 5500 },
+    { name: "Data Darbar (Lahore)", distance: 380, time: 4.5, cost: 5500 },
+    { name: "Shah Jahan Mosque (Thatta)", distance: 1120, time: 14.0, cost: 14000 },
+    { name: "Tomb of Allama Iqbal (Lahore)", distance: 380, time: 4.5, cost: 5000 },
+    { name: "Noor Mahal (Bahawalpur)", distance: 720, time: 9.5, cost: 9000 },
+    { name: "Mazar-e-Quaid (Karachi)", distance: 1400, time: 18.0, cost: 18000 },
+    { name: "Mohenjo-Daro (Sindh)", distance: 1100, time: 13.0, cost: 13500 },
+    { name: "Rohtas Fort (Jhelum)", distance: 130, time: 2.0, cost: 3000 },
+    { name: "Tomb of Jahangir (Lahore)", distance: 380, time: 4.5, cost: 5500 },
+    { name: "Shah Rukn Alam Shrine (Multan)", distance: 550, time: 6.0, cost: 6500 }
+];
+
+let currentUser = "";
+let bookedTrips = [];
+
+function saveUsername() {
+    currentUser = document.getElementById("username").value;
+    if (!currentUser) {
+        alert("Please enter your username!");
+        return;
+    }
+    displayTrips();
+    loadTrips();
+}
+
+function displayTrips() {
+    let tripHTML = "";
+    trips.forEach((t, index) => {
+        tripHTML += `
+            <div class="trip">
+                <h3>${t.name}</h3>
+                <p><b>From:</b> Islamabad</p>
+                <p><b>Distance:</b> ${t.distance} km</p>
+                <p><b>Time:</b> ${t.time} hours</p>
+                <p><b>Cost:</b> ${t.cost} PKR per person/day</p>
+                <button onclick="bookTrip(${index})">Book Trip</button>
+            </div>
+        `;
+    });
+    document.getElementById("tripList").innerHTML = tripHTML;
+}
+
+function bookTrip(index) {
+    bookedTrips.push(trips[index]);
+    saveTrips();
+    loadTrips();
+    alert("Trip booked successfully!");
+}
+
+function saveTrips() {
+    localStorage.setItem(currentUser, JSON.stringify(bookedTrips));
+}
+
+function loadTrips() {
+    let saved = localStorage.getItem(currentUser);
+    bookedTrips = saved ? JSON.parse(saved) : [];
+    let myTripsHTML = "";
+    bookedTrips.forEach(t => {
+        myTripsHTML += `<li>${t.name} - ${t.cost} PKR</li>`;
+    });
+    document.getElementById("myTrips").innerHTML = myTripsHTML;
+}
+
+function clearTrips() {
+    localStorage.removeItem(currentUser);
+    bookedTrips = [];
+    loadTrips();
+    alert("All trips deleted!");
+}
+</script>
+
+</body>
+</html>

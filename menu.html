@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nature Trip Booking</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #eef2f3;
+            padding: 20px;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #2d6a4f;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #2d6a4f;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+        button:hover {
+            background: #1b4332;
+        }
+        input {
+            padding: 8px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .trip {
+            border-bottom: 1px solid #ccc;
+            padding: 10px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN/SIGNUP SCREEN -->
+    <div id="loginScreen" class="container">
+        <h1>Welcome to Nature Trip Booking</h1>
+        <h2>Login / Signup</h2>
+        <label>Username:</label>
+        <input type="text" id="loginUsername" placeholder="Enter your name">
+        <button onclick="login()">Login</button>
+    </div>
+
+    <!-- MAIN MENU SCREEN -->
+    <div id="menuScreen" class="container" style="display: none;">
+        <h1>Nature Trip Booking</h1>
+        <h2 id="welcomeUser"></h2>
+
+        <h3>Available Trips</h3>
+        <div id="tripList"></div>
+
+        <h3>My Booked Trips</h3>
+        <div id="myTrips"></div>
+        <button onclick="deleteTrips()">Delete All My Trips</button>
+    </div>
+
+    <script>
+        const trips = [
+            { name: "Naran", distance: 280, time: 6.0, cost: 6000 },
+            { name: "Skardu", distance: 640, time: 14.0, cost: 15000 },
+            { name: "Hunza", distance: 600, time: 12.0, cost: 13000 },
+            { name: "Fairy Meadows", distance: 540, time: 11.0, cost: 12000 },
+            { name: "Neelum Valley", distance: 240, time: 7.0, cost: 7000 },
+            { name: "Kalash Valley", distance: 410, time: 9.0, cost: 9000 },
+            { name: "Rama Meadows", distance: 480, time: 10.0, cost: 11000 },
+            { name: "Ganga Choti", distance: 180, time: 5.5, cost: 5000 },
+            { name: "Leepa Valley", distance: 260, time: 6.5, cost: 7500 },
+            { name: "Shogran", distance: 240, time: 6.0, cost: 6000 }
+        ];
+
+        let currentUser = "";
+
+        function login() {
+            const username = document.getElementById("loginUsername").value.trim();
+            if (!username) {
+                alert("Please enter a username.");
+                return;
+            }
+            currentUser = username;
+            clearScreen(() => {
+                document.getElementById("loginScreen").style.display = "none";
+                document.getElementById("menuScreen").style.display = "block";
+                document.getElementById("welcomeUser").innerText = "Welcome, " + currentUser;
+                displayTrips();
+                displayMyTrips();
+            });
+        }
+
+        function clearScreen(callback) {
+            document.body.innerHTML = "<h1 style='text-align:center; color:#2d6a4f;'>Loading...</h1>";
+            setTimeout(() => location.reload(), 500);
+        }
+
+        function displayTrips() {
+            let html = "";
+            trips.forEach((trip, index) => {
+                html += `
+                    <div class="trip">
+                        <b>${trip.name}</b><br>
+                        Distance: ${trip.distance} km<br>
+                        Time: ${trip.time} hours<br>
+                        Cost: ${trip.cost} PKR/day<br>
+                        <button onclick="bookTrip(${index})">Book Trip</button>
+                    </div>
+                `;
+            });
+            document.getElementById("tripList").innerHTML = html;
+        }
+
+        function bookTrip(index) {
+            let bookedTrips = JSON.parse(localStorage.getItem(currentUser)) || [];
+            bookedTrips.push(trips[index]);
+            localStorage.setItem(currentUser, JSON.stringify(bookedTrips));
+            alert("Trip booked successfully!");
+            displayMyTrips();
+        }
+
+        function displayMyTrips() {
+            let bookedTrips = JSON.parse(localStorage.getItem(currentUser)) || [];
+            let html = bookedTrips.length ? "" : "No trips booked.";
+            bookedTrips.forEach(trip => {
+                html += `
+                    <div class="trip">
+                        <b>${trip.name}</b><br>
+                        Distance: ${trip.distance} km<br>
+                        Time: ${trip.time} hours<br>
+                        Cost: ${trip.cost} PKR/day<br>
+                    </div>
+                `;
+            });
+            document.getElementById("myTrips").innerHTML = html;
+        }
+
+        function deleteTrips() {
+            localStorage.removeItem(currentUser);
+            displayMyTrips();
+            alert("All trips deleted for " + currentUser);
+        }
+    </script>
+
+</body>
+</html>
